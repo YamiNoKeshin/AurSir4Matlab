@@ -1,0 +1,6 @@
+[submodule "external/jsonlab"]
+	path = external/jsonlab
+	url = https://github.com/YamiNoKeshin/jsonlab.git
+[submodule "external/zeromq-matlab"]
+	path = external/zeromq-matlab
+	url = https://github.com/smcgill3/zeromq-matlab.git
