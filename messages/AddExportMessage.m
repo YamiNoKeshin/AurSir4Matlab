@@ -2,11 +2,12 @@ classdef AddExportMessage < AurSirMessage
     properties
         AppKey
         Tags
-        ExportId
     end
     
     methods
-        function obj = AddExportMessage
+        function obj = AddExportMessage(AppKey, Tags)
+            obj.AppKey = AppKey;
+            obj.Tags = Tags;
             obj.MessageType = MessageType.ADD_EXPORT;
         end
         
@@ -19,18 +20,10 @@ classdef AddExportMessage < AurSirMessage
         end
         
         function obj = set.Tags(obj, value)
-            if isa(value, 'cell') && numel(value) > 0
+            if isa(value, 'cell')
                 obj.Tags = value;
             else
                 error(strcat('Wrong type, expected non-empty cell, got ', class(value)));
-            end
-        end
-        
-        function obj = set.ExportId(obj, value)
-            if isa(value, 'char')
-                obj.ExportId = value;
-            else
-                error(strcat('Wrong type, expected char, got ', class(value)));
             end
         end
     end

@@ -5,7 +5,9 @@ classdef DockMessage < AurSirMessage
     end
     
     methods
-        function obj = DockMessage
+        function obj = DockMessage(AppName, Codecs)
+            obj.AppName = AppName;
+            obj.Codecs = Codecs;
             obj.MessageType = MessageType.DOCK;
         end
         

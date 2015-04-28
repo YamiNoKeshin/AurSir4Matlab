@@ -5,7 +5,9 @@ classdef ImportUpdatedMessage < AurSirMessage
     end
     
     methods
-        function obj = ImportUpdatedMessage
+        function obj = ImportUpdatedMessage(ImportId, Exported)
+            obj.ImportId = ImportId;
+            obj.Exported = Exported;
             obj.MessageType = MessageType.IMPORT_UPDATED;
         end
         

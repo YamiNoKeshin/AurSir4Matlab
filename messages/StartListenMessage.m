@@ -5,7 +5,9 @@ classdef StartListenMessage < AurSirMessage
     end
     
     methods
-        function obj = StartListenMessage
+        function obj = StartListenMessage(ImportId, FunctionName)
+            obj.ImportId = ImportId;
+            obj.FunctionName = FunctionName;
             obj.MessageType = MessageType.LISTEN;
         end
         

@@ -4,7 +4,8 @@ classdef RemoveImportMessage < AurSirMessage
     end
     
     methods
-        function obj = RemoveImportMessage
+        function obj = RemoveImportMessage(ImportId)
+            obj.ImportId = ImportId
             obj.MessageType = MessageType.REMOVE_IMPORT;
         end
         

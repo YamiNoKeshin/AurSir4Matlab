@@ -8,11 +8,35 @@ classdef ResultMessage < AurSirMessage
         CallType
         Codec
         Tags
-        Result
+        Result 
     end
     
     methods
-        function obj = ResultMessage
+        function obj = ResultMessage(Request, ExportId, Result)
+            if nargin > 0
+                if isa(Request, 'char')
+                    r = AurSirMessage.fromStruct('RequestMessage', Request);
+                elseif isa(Request, 'RequestMessage')
+                    r = Request;
+                else
+                    error('Not a valid request');
+                end
+            
+                fields = fieldnames(r);
+                for ii = 1:numel(fields)
+                    f = fields{ii};
+                    if isprop(c, f)
+                            obj.(f) = r.(f);
+                    end
+                end
+            end
+            if nargin > 1
+                obj.ExportId = ExportId;
+            end
+            if nargin > 2
+                obj.Result = base64_encode(savejson(Result));
+            end
+            
             obj.MessageType = MessageType.RESULT;
         end
         
@@ -73,7 +97,7 @@ classdef ResultMessage < AurSirMessage
         end
         
         function obj = set.Tags(obj, value)
-            if isa(value, 'cell') && numel(value) > 0
+            if isa(value, 'cell')
                 obj.Tags = value;
             else
                 error(strcat('Wrong type, expected non-empty cell, got ', class(value)));
@@ -86,6 +110,10 @@ classdef ResultMessage < AurSirMessage
             else
                 error(strcat('Wrong type, expected char, got ', class(value)));
             end
+        end
+        
+        function r = obj.decode(obj)
+            r = loadjson(base64_decode(obj.Result));
         end
     end
     

@@ -12,7 +12,13 @@ classdef RequestMessage < AurSirMessage
     end
     
     methods
-        function obj = RequestMessage
+        function obj = RequestMessage(AppKeyName, FunctionName, ImportId, Uuid, CallType, Tags)
+            obj.AppKeyName = AppKeyName;
+            obj.FunctionName = FunctionName;
+            obj.ImportId = ImportId;
+            obj.Uuid = Uuid;
+            obj.CallType = CallType;
+            obj.Tags = Tags;
             obj.MessageType = MessageType.REQUEST;
         end
         
@@ -73,7 +79,7 @@ classdef RequestMessage < AurSirMessage
         end
         
         function obj = set.Tags(obj, value)
-            if isa(value, 'cell') && numel(value) > 0
+            if isa(value, 'cell')
                 obj.Tags = value;
             else
                 error(strcat('Wrong type, expected non-empty cell, got ', class(value)));
@@ -87,6 +93,11 @@ classdef RequestMessage < AurSirMessage
                 error(strcat('Wrong type, expected char, got ', class(value)));
             end
         end
+        
+        function r = obj.decode(obj)
+            r = loadjson(base64_decode(obj.Request));
+        end
+        
     end
     
 end
