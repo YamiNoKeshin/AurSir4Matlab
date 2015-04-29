@@ -21,9 +21,8 @@ classdef ExportedAppkey
         end
         
         function reply(obj, request, result)
-            t = ResultMessage(request, obj.id, result);
-            wait(t);
-            req = get(t, 'UserData');
+            m = ResultMessage(request, obj.id, result);
+            obj.router.send(m);
         end
     end
     

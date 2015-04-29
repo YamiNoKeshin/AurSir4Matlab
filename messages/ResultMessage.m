@@ -15,18 +15,21 @@ classdef ResultMessage < AurSirMessage
         function obj = ResultMessage(Request, ExportId, Result)
             if nargin > 0
                 if isa(Request, 'char')
-                    r = AurSirMessage.fromStruct('RequestMessage', Request);
-                elseif isa(Request, 'RequestMessage')
+                    r = loadjson(Request);
+                elseif isa(Request, 'RequestMessage') || isa(Request, 'struct')
                     r = Request;
                 else
                     error('Not a valid request');
                 end
-            
+                
                 fields = fieldnames(r);
                 for ii = 1:numel(fields)
                     f = fields{ii};
-                    if isprop(c, f)
+                    if isprop(obj, f)
+                        try
                             obj.(f) = r.(f);
+                        catch e
+                        end
                     end
                 end
             end
@@ -34,7 +37,7 @@ classdef ResultMessage < AurSirMessage
                 obj.ExportId = ExportId;
             end
             if nargin > 2
-                obj.Result = base64_encode(savejson(Result));
+                obj.Result = base64_encode(savejson('', Result, 'ParseLogical', 1, 'Compact', 1));
             end
             
             obj.MessageType = MessageType.RESULT;
@@ -83,6 +86,8 @@ classdef ResultMessage < AurSirMessage
         function obj = set.CallType(obj, value)
             if isa(value, 'CallType')
                 obj.CallType = int64(value);
+            elseif isnumeric(value)
+                obj.CallType = int64(value);
             else
                 error(strcat('Wrong type, expected CallType, got ', class(value)));
             end
@@ -112,8 +117,11 @@ classdef ResultMessage < AurSirMessage
             end
         end
         
-        function r = obj.decode(obj)
-            r = loadjson(base64_decode(obj.Result));
+        function r = decode(obj)
+            res = base64_decode(obj.Result);
+            res = sprintf('%s', res);
+            res = strrep(res, '\"', '"');
+            r = loadjson(res(2:end-1));
         end
     end
     

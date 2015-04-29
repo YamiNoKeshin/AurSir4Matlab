@@ -2,24 +2,7 @@ classdef (Abstract) AurSirMessage
     properties
         MessageType
     end
-    
-%     methods (Static)
-%         function c = fromStruct(className, s)
-%             c = feval(className);
-%             fields = fieldnames(s);
-%             disp(fields);
-%             for ii = 1:numel(fields)
-%                 f = fields{ii};
-%                 if isprop(c, f)
-%                     disp(f);
-%                     c.(f) = s.(f);
-%                 else
-%                     error('Incompatible Struct');
-%                 end
-%             end
-%         end
-%     end
-    
+ 
     methods
         function obj = set.MessageType(obj, value)
             if isa(value, 'MessageType')

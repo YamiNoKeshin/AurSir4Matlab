@@ -21,7 +21,7 @@ classdef StartListenMessage < AurSirMessage
         
         function obj = set.FunctionName(obj, value)
             if isa(value, 'char')
-                obj.ImportId = value;
+                obj.FunctionName = value;
             else
                 error(strcat('Wrong type, expected char, got ', class(value)));
             end

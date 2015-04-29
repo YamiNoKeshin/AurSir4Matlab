@@ -8,7 +8,8 @@ classdef AurSirInterface
     methods (Access = private)
         function dock_(obj)
             m = DockMessage(obj.appName, {'JSON'});
-            t = obj.router.send(m);
+            type = m.MessageType;
+            t = obj.router.send(m, 0, type);
             wait(t);
             ok = get(t, 'UserData');
             if ok
@@ -35,14 +36,18 @@ classdef AurSirInterface
         
         function import = add_import(obj, appkey, tags)
             m = AddImportMessage(appkey, tags);
-            t = obj.router.send(m);
+            key = strcat(m.AppKey.ApplicationKeyName, cell2mat(m.Tags));
+            type = m.MessageType;
+            t = obj.router.send(m, key, type);
             wait(t);
             import = get(t, 'UserData');
         end
         
         function export = add_export(obj, appkey, tags)
             m = AddExportMessage(appkey, tags);
-            t = obj.router.send(m);
+            key = strcat(m.AppKey.ApplicationKeyName, cell2mat(m.Tags));
+            type = m.MessageType;
+            t = obj.router.send(m, key, type);
             wait(t);
             export = get(t, 'UserData');
         end

@@ -12,13 +12,14 @@ classdef RequestMessage < AurSirMessage
     end
     
     methods
-        function obj = RequestMessage(AppKeyName, FunctionName, ImportId, Uuid, CallType, Tags)
+        function obj = RequestMessage(AppKeyName, FunctionName, ImportId, Uuid, CallType, Tags, Request)
             obj.AppKeyName = AppKeyName;
             obj.FunctionName = FunctionName;
             obj.ImportId = ImportId;
             obj.Uuid = Uuid;
             obj.CallType = CallType;
             obj.Tags = Tags;
+            obj.Request = Request;
             obj.MessageType = MessageType.REQUEST;
         end
         
@@ -94,8 +95,11 @@ classdef RequestMessage < AurSirMessage
             end
         end
         
-        function r = obj.decode(obj)
-            r = loadjson(base64_decode(obj.Request));
+        function r = decode(obj)
+            req = base64_decode(obj.Request);
+            req = sprintf('%s', req);
+            req = strrep(req, '\"', '"');
+            r = loadjson(req(2:end-1));
         end
         
     end

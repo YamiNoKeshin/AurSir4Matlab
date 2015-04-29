@@ -58,6 +58,19 @@ classdef Router < handle
                 found = true;
             end
         end
+        
+        function [result, found] = wait_for_result_(obj, key)
+            map = obj.pending(int64(MessageType.RESULT));
+            if ~isKey(map, key)
+                map(key) = 0;
+            end
+            found = false;
+            result = map(key);
+            if ~isnumeric(result)
+                remove(map, key);
+                found = true;
+            end
+        end
     end
     
     methods
@@ -86,21 +99,22 @@ classdef Router < handle
                     [result, found] = obj.wait_export_added_(key);
                 case MessageType.REQUEST
                     [result, found] = obj.wait_for_request_(key);
+                case MessageType.RESULT
+                    [result, found] = obj.wait_for_result_(key);
                 otherwise
                     result = 0; 
                     found = false;
             end
         end
         
-        function t = send(obj, msg)
+        function t = send(obj, msg, key, type)
             obj.outgoing.send(msg);
-            key = 0;
-            if msg.MessageType ~= MessageType.DOCK
-                key = strcat(msg.AppKey.ApplicationKeyName, cell2mat(msg.Tags));
+            t = 0;
+            if nargin > 2
+                timer_fcn = {@router_timer_fcn, obj, key, type};
+                t = timer('Period', 0.1, 'ExecutionMode', 'fixedSpacing', 'TimerFcn', timer_fcn, 'TasksToExecute', 600);
+                start(t);
             end
-            timer_fcn = {@router_timer_fcn, obj, key, msg.MessageType};
-            t = timer('Period', 0.1, 'ExecutionMode', 'fixedSpacing', 'TimerFcn', timer_fcn, 'TasksToExecute', 600);
-            start(t);
         end
         
         function stop(obj)
@@ -129,7 +143,6 @@ classdef Router < handle
                 case MessageType.IMPORT_ADDED
                     m = loadjson(msg);
                     ia = ImportedAppkey(m, obj);
-                    disp(ia);
                     key = strcat(m.AppKey.ApplicationKeyName, cell2mat(m.Tags));
                     map(key) = ia;
                 case MessageType.EXPORT_ADDED
@@ -138,7 +151,7 @@ classdef Router < handle
                     key = strcat(m.AppKey.ApplicationKeyName, cell2mat(m.Tags));
                     map(key) = ea;
                 case MessageType.RESULT
-                    m = AurSirMessage.fromStruct('ResultMessage',loadjson(msg));
+                    m = ResultMessage(loadjson(msg));
                     if m.CallType == 0
                         key = m.Uuid;
                     else
@@ -146,9 +159,18 @@ classdef Router < handle
                     end
                     map(key) = m;
                 case MessageType.REQUEST
-                    m = AurSirMessage.fromStruct('RequestMessage',loadjson(msg));
-                    key = m.exportId;
-                    map(key) = m;
+                    m = loadjson(msg);
+                    req = RequestMessage(...
+                        m.AppKeyName,...
+                        m.FunctionName,...
+                        m.ImportId,...
+                        m.Uuid,...
+                        CallType(m.CallType),...
+                        m.Tags,...
+                        m.Request...
+                        );
+                    key = m.ExportId;
+                    map(key) = req;
                 otherwise
                     error('Unsupported MessageType');
             end
